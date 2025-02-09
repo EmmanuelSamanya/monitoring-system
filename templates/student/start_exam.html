@@ -1,0 +1,128 @@
+{% extends 'student/studentbase.html' %}
+{% block content %}
+{% load static %}
+
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+</head>
+
+<div class="jumbotron my-4">
+  <form id="exam-form" class="form" autocomplete="off" onsubmit="return stopRecordingAndUpload()" action="/student/calculate-marks" method="POST">
+    {% csrf_token %}
+    <h2 style="text-align: center;">Course: {{ course.course_name }}</h2>
+    {% for q in questions %}
+      <h3 class="text-danger">{{ forloop.counter }}. {{ q.question }}</h3>
+      <h4 style="text-align: right;">[{{ q.marks }} Marks]</h4>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" value="Option1">
+        <label class="form-check-label">{{ q.option1 }}</label>
+      </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" value="Option2">
+        <label class="form-check-label">{{ q.option2 }}</label>
+      </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" value="Option3">
+        <label class="form-check-label">{{ q.option3 }}</label>
+      </div>
+      <div class="form-check mx-4">
+        <input class="form-check-input" type="radio" name="{{ forloop.counter }}" value="Option4">
+        <label class="form-check-label">{{ q.option4 }}</label>
+      </div>
+    {% endfor %}
+    <input class="btn btn-success btn-lg" type="submit" value="Submit Answers">
+  </form>
+</div>
+
+<!-- Webcam & Screen Preview -->
+<video id="videoPreview" autoplay style="width:200px; height:150px;"></video>
+
+<script>
+let mediaRecorder;
+let recordedChunks = [];
+let tabSwitchCount = 0;
+let recordingStarted = false;
+
+// Start monitoring when the page loads
+window.onload = startMonitoring;
+
+// Detect tab switching
+document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+        tabSwitchCount++;
+        alert("Warning! You switched tabs. Supervisors will be notified.");
+    }
+});
+
+// Start Webcam & Screen Recording
+async function startMonitoring() {
+    try {
+        // Capture webcam + microphone
+        const videoStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById("videoPreview").srcObject = videoStream;
+
+        // Capture screen
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+
+        // Merge streams (Webcam + Screen)
+        const combinedStream = new MediaStream([
+            ...videoStream.getTracks(),
+            ...screenStream.getTracks()
+        ]);
+
+        console.log("Combined Stream:", combinedStream);
+
+        // Set up MediaRecorder to record the combined stream
+        mediaRecorder = new MediaRecorder(combinedStream, { mimeType: "video/webm" });
+        mediaRecorder.ondataavailable = event => recordedChunks.push(event.data);
+        mediaRecorder.start();
+        recordingStarted = true;
+
+        console.log("Recording started successfully!");
+    } catch (error) {
+        console.error("Monitoring failed:", error);
+        alert("Error: Unable to start monitoring. Please allow camera and screen permissions.");
+    }
+}
+
+// Stop Recording & Upload to Django
+function stopRecordingAndUpload() {
+    if (!recordingStarted) {
+        alert("Recording was not started. Please allow camera and screen access.");
+        return false; // Prevent form submission
+    }
+
+    mediaRecorder.stop();
+    mediaRecorder.onstop = async function() {
+        let blob = new Blob(recordedChunks, { type: "video/webm" });
+        let formData = new FormData();
+        formData.append("video", blob, "exam_recording.webm");
+
+        // Upload video to Django backend
+        fetch("", { method: "POST", body: formData })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Upload success:", data);
+                alert("Exam recording uploaded successfully!");
+
+                // Send tab switch count (optional: log to server)
+                if (tabSwitchCount > 0) {
+                    alert("You switched tabs " + tabSwitchCount + " times! Supervisors will review your activity.");
+                }
+
+                // Submit exam form
+                document.getElementById("exam-form").submit();
+            })
+            .catch(error => {
+                console.error("Upload failed:", error);
+                {% comment %} alert("Error uploading video. Please try again."); {% endcomment %}
+            });
+    };
+
+    return false; // Prevent default form submission (submit after video upload)
+}
+</script>
+
+{% endblock content %}
