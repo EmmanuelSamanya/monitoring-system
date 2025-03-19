@@ -1,31 +1,141 @@
 <!DOCTYPE html>
 {% load static %}
 <html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Examination System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
 
-<style>
-  .jumbotron{
-    margin-bottom: 0px;
-  }
-</style>
+        .jumbotron {
+            margin-bottom: 0;
+            background: transparent;
+            min-height: 80vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .display-3 {
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #2c3e50 !important;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+            color: #34495e;
+            margin-bottom: 1.5rem;
+        }
+
+        .lead {
+            font-size: 1.25rem;
+            color: #576574;
+            margin-bottom: 2rem;
+        }
+
+        .btn-info {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+            border: none;
+            padding: 1rem 2.5rem !important;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, #6dd5ed, #2193b0);
+        }
+
+        .fa-graduation-cap {
+            margin-right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Decorative elements */
+        .jumbotron::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .display-3 {
+                font-size: 2.5rem;
+            }
+            .display-4 {
+                font-size: 1.8rem;
+            }
+            .lead {
+                font-size: 1rem;
+            }
+            .btn-info {
+                padding: 0.8rem 2rem !important;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
 <body>
-  {% include "exam/navbar.html" %}
-<br>
-<section id="section-jumbotron" class="jumbotron jumbotron-fluid d-flex justify-content-center align-items-center">
-  <div class="container text-center">
-    <h2 class="display-3 text-info">Online Examination Monitoring System</h2>
-    <p class="display-4 d-none d-sm-block">Attend your examinations online!</p>
-    <p class="lead">Sign Up now to start your first online examination</p>
-
-  
-    <p><strong> Start Your Journey Here:</strong></p>
-    <a href="/student/studentsignup" class="btn btn-lg btn-info" style="padding-right: 35px; border-radius: 0%;"><i class="fa fa-graduation-cap" aria-hidden="true"></i> Sign Up as Student</a>
+    {% include "exam/navbar.html" %}
     
-    <br><br><br>
-  </div>  
-</section>
-  {% include "exam/footer.html" %}
+    <section id="section-jumbotron" class="jumbotron jumbotron-fluid d-flex justify-content-center align-items-center">
+        <div class="container text-center">
+            <h2 class="display-3">Online Examination Monitoring System</h2>
+            <p class="display-4 d-none d-sm-block">Attend your examinations online!</p>
+            <p class="lead">Sign Up now to start your first online examination</p>
+            
+            <p><strong>Start Your Journey Here:</strong></p>
+            <a href="/student/studentsignup" class="btn btn-lg btn-info">
+                <i class="fa fa-graduation-cap" aria-hidden="true"></i> 
+                Sign Up as Student
+            </a>
+        </div>  
+    </section>
 
-
+    {% include "exam/footer.html" %}
 </body>
-
 </html>
